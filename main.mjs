@@ -42,7 +42,7 @@ const lms = new LMSModel();
 
 
 // Create new Teacher from Teacher's data
-const teachers = new TeachersModel();
+
 let data = {
   "name": {
     "first": 'Jon',
@@ -81,6 +81,7 @@ let teacherId;
 // // will return Teachers data including teacher's id
 
 (async () => {
+  const teachers = new TeachersModel();
   const teacherId = await teachers.add(data);
 //   console.log(await teachers.read(teacherId));
 //   console.log(await teachers.update(teacherId,
@@ -162,10 +163,11 @@ const groups = new GroupsModel();
   const groupId = await groups.add(room);
 
   // Remove this pupil from this group
-  // groups.removePupil(groupId, pupil.id);
-
+  
   // Add this pupil to this group
-  await groups.addPupil(groupId, pupil.id);
+  await groups.addPupil(groupId, pupil);
+  
+  // await groups.removePupil(groupId, pupil.id);
 
   // Update room for this group
   await groups.update(groupId, {
@@ -175,11 +177,11 @@ const groups = new GroupsModel();
 
 
   // Read information about group
-  console.log(await groups.read(groupId));
+  // console.log(await groups.read(groupId));
 
 
   // It will return array of groups
-  console.log(await groups.readAll());
+  // console.log(await groups.readAll());
 
 
 
@@ -187,12 +189,13 @@ const pupilId = pupil.id;
 // const teacherId = teacherId;
 const gradebooks = new GradebooksModel(groups, teachers, lms);
 
+
 // Create a new gradebook
 const level = 1;
 const gradebookId = await gradebooks.add(level, groupId);
 
-// Destroy all data inside this gradebook
-// gradebooks.clear();
+// // Destroy all data inside this gradebook
+// // gradebooks.clear();
 
 const record = {
   pupilId: pupilId,
@@ -204,14 +207,14 @@ const record = {
 
 
 
-gradebooks.addRecord(gradebookId, record);
+await gradebooks.addRecord(gradebookId, record);
 
-// Read information about oliver results
+// // Read information about oliver results
 const oliver = await gradebooks.read(gradebookId, pupilId);
 
 console.log(oliver);
 
-// Read information about all students in this gradebook
-const students = gradebooks.readAll(gradebookId); // It will return the array of objects
+// // Read information about all students in this gradebook
+// const students = gradebooks.readAll(gradebookId); // It will return the array of objects
 })();
 

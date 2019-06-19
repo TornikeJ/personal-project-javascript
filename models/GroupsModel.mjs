@@ -6,8 +6,9 @@ export class GroupsModel {
 
         this.schema = {
                 id: 'string',
-                room: 5
-            }
+                room: 5,
+                pupils:[]
+        }
 
     }
 
@@ -18,38 +19,56 @@ export class GroupsModel {
             throw new Error('We dont have id');
         }
 
-        // const { id } = obj;
         const prevObject = this.groupsBase.get(key);
 
         const updatedGroup = merge(prevObject, obj);
 
-        // Put fix for primary
+        return updatedGroup;
 
-        this.groupsBase.set(key, updatedGroup);
-
-        // console.log(updatedTeacher);
-        return key;
     }
 
     async add(room) {
-        // validate(this.schema, obj, true);
 
-        const id = (Math.floor(Math.random() * 1000) + 1).toString();
+        if(typeof room !== 'number') {
+            throw new Error("Parameter is not a number");
+        } else {
+            const id = (Math.floor(Math.random() * 1000) + 1).toString();
+            let group = Object.create(Object.prototype, {
+                id: {
+                    value: id,
+                    enumerable: true
+                },
+                room: {
+                    value: room,
+                    writable:true,
+                    enumerable: true
+                },
+                pupils: {
+                    value: [],
+                    enumerable: true,
+                    writable:true
+                }
+            });
 
-        this.groupsBase.set(id,{room:room});
-
-        return id;
+            this.groupsBase.set(id, group);
+            return group.id;
+        }
     };
 
-    async addPupil(groupId,pupilId) {
-        // validate(this.schema, obj, true);
+    async addPupil(groupId,pupil) {
+        if(typeof groupId !== 'string') {
+            throw new Error("Parameter is not a string");
+        }
+        if(typeof pupil !== 'object') {
+            throw new Error("Parameter is not an object");
+        }
+        if(!this.groupsBase.has(groupId)) {
+            throw new Error("ID not found in base");
+        }
+
+        this.groupsBase.get(groupId).pupils.push(pupil);
 
         
-        Object.assign(this.groupsBase.get(groupId),{id:pupilId});
-        
-        console.log(this.groupsBase.get(groupId));
-        
-    
     };
 
     read(id) {
@@ -63,13 +82,21 @@ export class GroupsModel {
             resolve(this.groupsBase.get(id));
         });
     };
-    remove(id) {
+
+    removePupil(groupId,pupilId) {
         return new Promise((resolve, reject) => {
-            if (!this.groupsBase.has(id)) {
+            if (!this.groupsBase.has(groupId)) {
                 reject('Input can\'t be found');
             }
+            
+            for(let i=0;i<this.groupsBase.get(groupId).pupils.length;i++)
+            {
+                if(this.groupsBase.get(groupId).pupils[i].id===pupilId)
+                {
+                    resolve(this.groupsBase.get(groupId).pupils.splice(this.groupsBase.get(groupId).pupils.indexOf(this.groupsBase.get(groupId).pupils[i]),1));
+                }
+            }
 
-            resolve(this.groupsBase.delete(id));
         });
     };
 
